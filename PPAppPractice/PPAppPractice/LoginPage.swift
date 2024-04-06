@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Binding var isAuthenticated: Bool // Binding to the isAuthenticated state variable
+    @Binding public var isAuthenticated: Bool // Binding to the isAuthenticated state variable
 
     @State private var username: String = ""
     @State private var password: String = ""

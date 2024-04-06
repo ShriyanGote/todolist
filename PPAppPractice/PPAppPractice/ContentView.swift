@@ -159,7 +159,7 @@ struct ContentView: View {
                     }
                     
                     Button(action: {
-                        isSecondWindowOpen.toggle()
+                        isAuthenticated = false
                     }) {
                         Text("Return to Login")
                             .font(.headline)
@@ -172,9 +172,6 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .offset(x: -160, y: 0)
                     .background(Color.clear)
-                    .sheet(isPresented: $isSecondWindowOpen) {
-                        SecondView(playerColors: playerColors)
-                        }
                 } // end hstack for return to login and player entry
                     
                     ScrollView(.horizontal, showsIndicators: false) {
