@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import requests
-from calculations import get_mvp_data, calculate_score, extract_team_info, bubble_sort, get_team
-
+from calculations import get_mvp_data, calculate_score, extract_team_info, bubble_sort, get_team, get_mvps
+# import sklearn as sk
+# import tensorflow as tf
 app = Flask(__name__)
 
 # Routes
@@ -49,7 +50,6 @@ def result():
     for i in range(len(all_teams)):
         all_teams[i]['Rank'] = i + 1
     
-    
 
     url_player = f"https://www.basketball-reference.com/leagues/NBA_{team_year_stats}_per_game.html"
     response_player = requests.get(url_player)
@@ -87,6 +87,7 @@ def result():
             mvp_data_filtered[f"{category}_Rk"] = mvp_data_filtered[category].rank(pct=True)
         
         result_data = []
+        mvp = get_mvps(team_year_stats)
         for name in mvp_data_filtered['Player']:
             player = get_mvp_data(mvp_data_filtered, name)
             if player is None:
@@ -102,13 +103,16 @@ def result():
             if any(pd.isna(player_fullstats)):
                 print(f"Skipping player due to invalid stats: {name}")
                 continue
-            
+            if_mvp = False
+            if name == mvp:
+                if_mvp = True
             result_data.append({
                 'Player': name,
-                'MVP Score': calculate_score(player, get_team(all_teams, player_fullstats[2]))
+                'MVP Score': calculate_score(player, get_team(all_teams, player_fullstats[2])),
+                'MVP':if_mvp
             })
 
-
+        
         result_data_sorted = sorted(result_data, key=lambda x: x['MVP Score'], reverse=True)
         unique_players = set()
         unique_result_data = []
@@ -121,9 +125,12 @@ def result():
         
         print(unique_result_data)
         return render_template('result.html', result=unique_result_data)
-
+    
     except Exception as e:
         return f"Error processing player stats: {e}", 500
+    
+    
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,6 +1,8 @@
 
 import numpy as np
 import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 # Helper Functions
 def get_mvp_data(data, player):
     row = data[data['Player'] == player]
@@ -23,14 +25,13 @@ def get_mvp_data(data, player):
         print(f"Error converting player data to numeric: {e}")
         return None
     
-    # print(f"Validated Data for {player}: {row_array}")
     return row_array
 
 
 
 def calculate_score(player_stats, team_stats):
-    print(player_stats)
-    print(player_stats[0], player_stats[28], player_stats[22], player_stats[23], player_stats[16])
+    # print(player_stats)
+    # print(player_stats[0], player_stats[28], player_stats[22], player_stats[23], player_stats[16])
     efg = player_stats[16] * 60
     stl = player_stats[24] * 10
     blk = player_stats[25] * 10
@@ -75,3 +76,26 @@ def get_team(all_teams, team_abb):
     return None
 
 
+
+
+def get_mvps(given_year):
+    my_hash = {}
+    url_player = "https://www.basketball-reference.com/awards/mvp.html"
+    response_player = requests.get(url_player)
+    response_player.encoding = 'utf-8'
+    print("Response Status Code: ", response_player.status_code)
+
+    soup = BeautifulSoup(response_player.text, 'html.parser')
+    nba_winners = soup.find('table', {'id': 'mvp_NBA'})
+    rows = nba_winners.find_all('tr')
+
+    for row in rows[1:]:  # Skipping the first row which is usually the header
+        columns = row.find_all('td')
+        
+        if len(columns) > 0:
+            # Extract the year from the href attribute in the first column
+            year_link = columns[0].find('a')['href']
+            year = year_link.split('/')[-1].split('_')[1].split('.')[0]  # Extract year from URL
+            player = columns[1].text.strip()  # Second column is the player name
+            my_hash[year] = player
+    return my_hash[given_year]

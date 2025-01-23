@@ -15,7 +15,12 @@
             <ul>
                 {% for item in result %}
                     <li class="player-item">
-                        <span class="player-name" style="font-weight: bold !important;">{{ item['Player'] }}</span>
+                        <!-- Check if the player is an MVP and apply the 'highlight' class if true -->
+                        <span class="player-name" 
+                            {% if item['MVP'] == True %}highlight{% endif %}
+                            style="font-weight: bold !important;">
+                            {{ item['Player'] }}
+                        </span>
                         <span class="mvp-score">{{ item['MVP Score'] }}</span>
                     </li>
                 {% endfor %}
